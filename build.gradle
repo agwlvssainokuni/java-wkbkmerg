@@ -1,0 +1,55 @@
+buildscript {
+	ext {
+		versionSpringBoot = "2.0.0.RELEASE"
+		versionCommonsLang3 = "3.7"
+		versionCommonsCsv = "1.5"
+		versionPoi = "3.17"
+	}
+	repositories { mavenCentral() }
+	dependencies { classpath "org.springframework.boot:spring-boot-gradle-plugin:${versionSpringBoot}" }
+}
+
+subprojects {
+
+	apply plugin: "java"
+	apply plugin: "eclipse"
+	apply plugin: "io.spring.dependency-management"
+	if (project.name == "wkbkmerg-cmd") {
+		apply plugin: "org.springframework.boot"
+		springBoot { mainClassName = "cherry.wkbkmerg.Main" }
+	}
+	if (project.name == "wkbkmerg-web") {
+		apply plugin: "org.springframework.boot"
+		springBoot { mainClassName = "cherry.wkbkmerg.Main" }
+	}
+	if (project.name == "wkbkmerg-common") {
+		dependencyManagement {
+			imports { mavenBom("org.springframework.boot:spring-boot-dependencies:${versionSpringBoot}") }
+		}
+	}
+
+	compileJava.options.encoding = "UTF-8"
+	compileTestJava.options.encoding = "UTF-8"
+
+	repositories { mavenCentral() }
+
+	dependencies {
+		if (project.name == "wkbkmerg-common") {
+			compile "org.springframework.boot:spring-boot-starter"
+			compile "org.springframework.boot:spring-boot-starter-aop"
+			compile "org.apache.commons:commons-lang3:${versionCommonsLang3}"
+			compile "org.apache.commons:commons-csv:${versionCommonsCsv}"
+			compile "org.apache.poi:poi:${versionPoi}"
+			compile "org.apache.poi:poi-ooxml:${versionPoi}"
+		}
+		if (project.name == "wkbkmerg-cmd") {
+			compile project(":wkbkmerg-common")
+		}
+		if (project.name == "wkbkmerg-web") {
+			compile project(":wkbkmerg-common")
+			compile "org.springframework.boot:spring-boot-starter-web"
+			compile "org.springframework.boot:spring-boot-starter-thymeleaf"
+		}
+		testCompile "org.springframework.boot:spring-boot-starter-test"
+	}
+}
